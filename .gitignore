@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# build byproducts (the committed .exe files ARE the deliverable)
+build/_*.txt
+build/*.obj
+
+# editor / OS noise
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
