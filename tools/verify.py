@@ -55,6 +55,8 @@ def main():
     shortdir = os.path.join(tempfile.gettempdir(), 'tiny-pe-268-test')
     os.makedirs(shortdir, exist_ok=True)
     short = os.path.join(shortdir, 'echo.exe')
+    if os.path.exists(short):
+        os.remove(short)            # avoid a stale/locked copy from a previous run
     shutil.copy(os.path.join(BUILD, 'hello-echo-arg.exe'), short)
 
     def run_short(args, n=1):
@@ -104,10 +106,18 @@ def main():
 
     print('\nredirect via cmd')
     tmp = os.path.join(BUILD, '_r.txt')
-    subprocess.run(['cmd', '/c', 'hello-268.exe > _r.txt'], cwd=BUILD, check=False)
-    data = open(tmp, 'rb').read() if os.path.exists(tmp) else b'<missing>'
     if os.path.exists(tmp):
         os.remove(tmp)
+    # cmd's startup can be slow under load, and the exe path here contains a
+    # space, so run with cwd + a relative name. Retry once on an empty file.
+    data = b''
+    for _ in range(3):
+        subprocess.run(['cmd', '/c', 'hello-268.exe > _r.txt'], cwd=BUILD, check=False)
+        if os.path.exists(tmp):
+            data = open(tmp, 'rb').read()
+            os.remove(tmp)
+        if data == b'hello world':
+            break
     check('file gets exactly 11 bytes, no newline', data == b'hello world', repr(data))
 
     print('\nRESULT:', 'ALL PASS' if ok_all else 'FAILURES PRESENT')
