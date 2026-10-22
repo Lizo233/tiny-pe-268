@@ -1,0 +1,11 @@
+# Keep sources LF so a clone builds the exact same bytes on any platform.
+* text=auto eol=lf
+
+*.py   text eol=lf
+*.md   text eol=lf
+*.txt  text eol=lf
+LICENSE text eol=lf
+.gitignore text eol=lf
+
+# The committed executables are the deliverable -- never touch their bytes.
+*.exe binary
